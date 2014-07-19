@@ -15,12 +15,11 @@ send_command             = rospy.ServiceProxy('constant_command', ConstantComman
 GAMEOVER = False
 MARCO = True
 INTERRUPTED = False
-
+RUNNING = True
 #Constants
 '''TODO constants here'''
 LINEAR_SPEED = 0.10
 ANGULAR_SPEED = 0.40
-MARCO_SLEEP = 4.0
 
 #Functions
 ''' 
@@ -70,10 +69,12 @@ def stop():
 '''TODO'''
 
 def arc(direction, duration):
+    print "in arc"
 
     command = Twist()
     command.linear.x = LINEAR_SPEED
     if not INTERRUPTED:
+	print "send arc linear"
         send_command(command)
 
     if   direction == "left"  :
@@ -82,15 +83,10 @@ def arc(direction, duration):
         command.angular.z = -ANGULAR_SPEED
     
     if not INTERRUPTED:
+	print "send arc angular"
         send_command(command)
         rospy.sleep(duration)
     
-    
-'''TODO'''
-def constantGo():
-    command = Twist()
-    command.linear.x = LINEAR_SPEED
-    send_command(command)
     
 '''TODO'''
 #def callPolo():
@@ -121,11 +117,17 @@ def mainLoop():
     global INTERRUPTED
 #    constantGo()
     while(not GAMEOVER):
-        arc(randomDirection(),randomDuration())
-        if INTERRUPTED :
-            go("backward", 1.0)  
-            turn("left", 2.2) 
-            INTERRUPTED = False
+        if RUNNING:           
+            print "start of while, calling arc"
+            arc(randomDirection(),randomDuration())
+            print "arc finished, checking interrupted"
+            if INTERRUPTED :
+                print "interrupted: go"
+                go("backward", 3.0)
+                print "interrupted, turn"  
+                turn("left", 11) 
+                INTERRUPTED = False
+                print "finished interruped"
             
 
 def initialize_commands():
