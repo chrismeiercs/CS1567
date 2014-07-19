@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "cs1567p3")
+set(cs1567p3_MAINTAINER "student <student@todo.todo>")
+set(cs1567p3_DEPRECATED "")
+set(cs1567p3_VERSION "0.0.0")
+set(cs1567p3_BUILD_DEPENDS "kobuki_node" "roscpp" "rospy" "std_msgs" "std_srvs" "geometry_msgs" "message_generation")
+set(cs1567p3_RUN_DEPENDS "message_runtime" "kobuki_node" "roscpp" "rospy" "std_msgs" "std_srvs" "geometry_msgs")
+set(cs1567p3_BUILDTOOL_DEPENDS "catkin")
