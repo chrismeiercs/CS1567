@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import rospy
+import random
 from cs1567p4.srv import *
 from std_srvs.srv import * 
 from nav_msgs.msg import *
@@ -7,13 +8,18 @@ from geometry_msgs.msg import *
 from kobuki_msgs.msg import BumperEvent
 
 #Globals
+bumper_event = None
 constant_command_service = None
 send_command             = rospy.ServiceProxy('constant_command', ConstantCommand)
 '''TODO globals here'''
+GAMEOVER = False
+MARCO = True
 
 #Constants
 '''TODO constants here'''
-
+LINEAR_SPEED = 0.10
+ANGULAR_SPEED = 0.40
+MARCO_SLEEP = 4.0
 
 #Functions
 ''' 
@@ -61,27 +67,65 @@ def stop():
     send_command(command)
 
 '''TODO'''
+
 def arc(direction, duration):
+
+    command = Twist()
+    command.linear.x = LINEAR_SPEED
+    send_command(command)
+
+    if   direction == "left"  :
+        command.angular.z = ANGULAR_SPEED
+    elif direction == "right" :
+        command.angular.z = -ANGULAR_SPEED
+    send_command(command)
+    rospy.sleep(duration)
+	
 	
 '''TODO'''
 def constantGo():
+    command = Twist()
+    command.linear.x = LINEAR_SPEED
+    send_command(command)
 	
 '''TODO'''
-def callPolo():
-	
+#def callPolo():
+    
 
 '''TODO'''
 def bumperCallback(data):
-	
+    if(data.state == 0):
+	return    
 
+    print data
+    stop()
+    go("backward",6) # 3 is an arbitrary number	
+    turn("left",7) # both parameters are arbitrary
+	
+def randomDirection():
+    number = random.randrange(0,2)
+    if(number==1):
+        return "right"
+    else:
+        return "left"
+
+def randomDuration():
+    return random.randrange(0,7)
+
+def mainLoop():
+#    constantGo()
+    while(not GAMEOVER):
+        arc(randomDirection(),randomDuration())
+	        
 
 def initialize_commands():
     global constant_command_service
-    rospy.Subscriber('/odom', Odometry, odom_callback)
+    global bumper_event
     rospy.init_node('polonode', anonymous=True)
     rospy.wait_for_service('constant_command')
     constant_command_service = rospy.ServiceProxy('constant_command', ConstantCommand)
-    
+    bumper_event = rospy.Subscriber('/mobile_base/events/bumper',BumperEvent, bumperCallback)
+    mainLoop()
 if __name__ == "__main__":   
     try: 
         initialize_commands()

@@ -29,6 +29,13 @@
 /home/student/cs1567_ws/build/cs1567p3/CMakeFiles/cs1567p3_generate_messages_py.dir
 /home/student/cs1567_ws/build/cs1567p3/CMakeFiles/cs1567p3_genlisp.dir
 /home/student/cs1567_ws/build/cs1567p3/CMakeFiles/cs1567p3_genpy.dir
+/home/student/cs1567_ws/build/cs1567p4/CMakeFiles/cs1567p4_gencpp.dir
+/home/student/cs1567_ws/build/cs1567p4/CMakeFiles/cs1567p4_generate_messages.dir
+/home/student/cs1567_ws/build/cs1567p4/CMakeFiles/cs1567p4_generate_messages_cpp.dir
+/home/student/cs1567_ws/build/cs1567p4/CMakeFiles/cs1567p4_generate_messages_lisp.dir
+/home/student/cs1567_ws/build/cs1567p4/CMakeFiles/cs1567p4_generate_messages_py.dir
+/home/student/cs1567_ws/build/cs1567p4/CMakeFiles/cs1567p4_genlisp.dir
+/home/student/cs1567_ws/build/cs1567p4/CMakeFiles/cs1567p4_genpy.dir
 /home/student/cs1567_ws/build/cs1567p0/CMakeFiles/diagnostic_msgs_generate_messages_cpp.dir
 /home/student/cs1567_ws/build/cs1567p0/CMakeFiles/diagnostic_msgs_generate_messages_lisp.dir
 /home/student/cs1567_ws/build/cs1567p0/CMakeFiles/diagnostic_msgs_generate_messages_py.dir

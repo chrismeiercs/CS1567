@@ -1082,6 +1082,97 @@ cs1567p3_genpy/fast:
 	$(MAKE) -f cs1567p3/CMakeFiles/cs1567p3_genpy.dir/build.make cs1567p3/CMakeFiles/cs1567p3_genpy.dir/build
 .PHONY : cs1567p3_genpy/fast
 
+#=============================================================================
+# Target rules for targets named cs1567p4_gencpp
+
+# Build rule for target.
+cs1567p4_gencpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cs1567p4_gencpp
+.PHONY : cs1567p4_gencpp
+
+# fast build rule for target.
+cs1567p4_gencpp/fast:
+	$(MAKE) -f cs1567p4/CMakeFiles/cs1567p4_gencpp.dir/build.make cs1567p4/CMakeFiles/cs1567p4_gencpp.dir/build
+.PHONY : cs1567p4_gencpp/fast
+
+#=============================================================================
+# Target rules for targets named cs1567p4_generate_messages
+
+# Build rule for target.
+cs1567p4_generate_messages: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cs1567p4_generate_messages
+.PHONY : cs1567p4_generate_messages
+
+# fast build rule for target.
+cs1567p4_generate_messages/fast:
+	$(MAKE) -f cs1567p4/CMakeFiles/cs1567p4_generate_messages.dir/build.make cs1567p4/CMakeFiles/cs1567p4_generate_messages.dir/build
+.PHONY : cs1567p4_generate_messages/fast
+
+#=============================================================================
+# Target rules for targets named cs1567p4_generate_messages_cpp
+
+# Build rule for target.
+cs1567p4_generate_messages_cpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cs1567p4_generate_messages_cpp
+.PHONY : cs1567p4_generate_messages_cpp
+
+# fast build rule for target.
+cs1567p4_generate_messages_cpp/fast:
+	$(MAKE) -f cs1567p4/CMakeFiles/cs1567p4_generate_messages_cpp.dir/build.make cs1567p4/CMakeFiles/cs1567p4_generate_messages_cpp.dir/build
+.PHONY : cs1567p4_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named cs1567p4_generate_messages_lisp
+
+# Build rule for target.
+cs1567p4_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cs1567p4_generate_messages_lisp
+.PHONY : cs1567p4_generate_messages_lisp
+
+# fast build rule for target.
+cs1567p4_generate_messages_lisp/fast:
+	$(MAKE) -f cs1567p4/CMakeFiles/cs1567p4_generate_messages_lisp.dir/build.make cs1567p4/CMakeFiles/cs1567p4_generate_messages_lisp.dir/build
+.PHONY : cs1567p4_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named cs1567p4_generate_messages_py
+
+# Build rule for target.
+cs1567p4_generate_messages_py: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cs1567p4_generate_messages_py
+.PHONY : cs1567p4_generate_messages_py
+
+# fast build rule for target.
+cs1567p4_generate_messages_py/fast:
+	$(MAKE) -f cs1567p4/CMakeFiles/cs1567p4_generate_messages_py.dir/build.make cs1567p4/CMakeFiles/cs1567p4_generate_messages_py.dir/build
+.PHONY : cs1567p4_generate_messages_py/fast
+
+#=============================================================================
+# Target rules for targets named cs1567p4_genlisp
+
+# Build rule for target.
+cs1567p4_genlisp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cs1567p4_genlisp
+.PHONY : cs1567p4_genlisp
+
+# fast build rule for target.
+cs1567p4_genlisp/fast:
+	$(MAKE) -f cs1567p4/CMakeFiles/cs1567p4_genlisp.dir/build.make cs1567p4/CMakeFiles/cs1567p4_genlisp.dir/build
+.PHONY : cs1567p4_genlisp/fast
+
+#=============================================================================
+# Target rules for targets named cs1567p4_genpy
+
+# Build rule for target.
+cs1567p4_genpy: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cs1567p4_genpy
+.PHONY : cs1567p4_genpy
+
+# fast build rule for target.
+cs1567p4_genpy/fast:
+	$(MAKE) -f cs1567p4/CMakeFiles/cs1567p4_genpy.dir/build.make cs1567p4/CMakeFiles/cs1567p4_genpy.dir/build
+.PHONY : cs1567p4_genpy/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1167,6 +1258,13 @@ help:
 	@echo "... cs1567p3_generate_messages_py"
 	@echo "... cs1567p3_genlisp"
 	@echo "... cs1567p3_genpy"
+	@echo "... cs1567p4_gencpp"
+	@echo "... cs1567p4_generate_messages"
+	@echo "... cs1567p4_generate_messages_cpp"
+	@echo "... cs1567p4_generate_messages_lisp"
+	@echo "... cs1567p4_generate_messages_py"
+	@echo "... cs1567p4_genlisp"
+	@echo "... cs1567p4_genpy"
 .PHONY : help
 
 
