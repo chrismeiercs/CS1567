@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import rospy
+import math
 from cs1567p4.srv import *
 from std_srvs.srv import * 
 from nav_msgs.msg import *
@@ -27,7 +28,7 @@ ANGULAR_SPEED            = 0.45 #TODO determine good speed for marco, compared t
     Linear movement forward or backward for a set distance
 @param: 
     string direction : 'forward' or 'backward' 
-    float  distance  : 
+    double  distance : 
 '''
 def go(direction, distance):
 
@@ -36,7 +37,7 @@ def go(direction, distance):
     Angular movement left or right for a set distance
 @param: 
     string direction : 'left' or 'right' 
-    float  distance  : 
+    double  distance : 
 '''
 def turn(direction, distance):
 
@@ -61,9 +62,15 @@ def stop():
     dictionary point1 : the first point
     dictionary point2 : the second point
 @return:
-    float distance
+    double distance in meters
 '''
 def calculateDistance(point1, point2):
+    x1 = point1['x']
+    x2 = point2['x']
+    y1 = point1['y']
+    y2 = point2['y']
+    result = math.sqrt( abs(x1-x2)**2 + abs(y1-y2)**2 )
+    return result
     
 '''
 @description:
@@ -72,9 +79,17 @@ def calculateDistance(point1, point2):
     dictionary point1 : the first point
     dictionary point2 : the second point
 @return:
-    float angle
+    double angle in radians
 '''
 def calculateAngle(point1, point2):
+    x1 = point1['x']
+    x2 = point2['x']
+    y1 = point1['y']
+    y2 = point2['y']
+    xside = abs(x1-x2)
+    yside = abs(y1-y2)
+    result = math.atan(xside/yside)
+    return result
 
 '''
 @description:
@@ -107,7 +122,7 @@ def assignClosestPoloLocation():
     determined by the Y coordinates of myLocation
     and the closestPoloLocation 
 '''
-def assignDesiredFace():
+def setDesiredFace():
     global desiredFace
     my_y   = myLocation['y']
     polo_y = closestPoloLocation['y']
@@ -123,7 +138,7 @@ def assignDesiredFace():
     determined by the x&y of myLocation
     and the closestPoloLocation
 '''
-def assignDesiredDistance():
+def setDesiredDistance():
     global desiredDistance
     desiredDistance = calculateDistance(myLocation, closestPoloLocation)
 
@@ -134,7 +149,7 @@ def assignDesiredDistance():
     determined by the x&y of myLocation
     and the closestPoloLocation
 '''
-def assignDesiredAngle():
+def setDesiredAngle():
     global desiredAngle
     desiredAngle = calculateAngle(myLocation, closestPoloLocation)
 
@@ -154,13 +169,15 @@ def bumperCallback(data):
     #if gameover: gameover
     #else: execute wall avoidance
 
+'''TODO'''
 def action():
     callMarco()                 # get list of poloLocations
     assignClosestPoloLocation() # determine closest
-    assignDesiredFace()         # set face north/south
+    #Now we have the closest Polo
+    setDesiredFace()            # set face north/south
     face(desiredFace)           # execute face north/south
-    assignDesiredAngle()        # set angle
-    assignDesiredDistance()     # set distance
+    setDesiredAngle()           # set angle
+    setDesiredDistance()        # set distance
     turn(desiredAngle)          # execute turn towards closest 
     go(desiredDistance)         # execute travel towards closest
 
