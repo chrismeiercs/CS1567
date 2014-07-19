@@ -88,6 +88,7 @@ IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   INCLUDE("/home/student/cs1567_ws/build/cs1567p0/cmake_install.cmake")
   INCLUDE("/home/student/cs1567_ws/build/cs1567p1/cmake_install.cmake")
   INCLUDE("/home/student/cs1567_ws/build/cs1567p3/cmake_install.cmake")
+  INCLUDE("/home/student/cs1567_ws/build/cs1567p4/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)
 
