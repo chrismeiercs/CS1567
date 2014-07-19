@@ -14,6 +14,7 @@ send_command             = rospy.ServiceProxy('constant_command', ConstantComman
 '''TODO globals here'''
 GAMEOVER = False
 MARCO = True
+INTERRUPTED = False
 
 #Constants
 '''TODO constants here'''
@@ -72,36 +73,40 @@ def arc(direction, duration):
 
     command = Twist()
     command.linear.x = LINEAR_SPEED
-    send_command(command)
+    if not INTERRUPTED:
+        send_command(command)
 
     if   direction == "left"  :
         command.angular.z = ANGULAR_SPEED
     elif direction == "right" :
         command.angular.z = -ANGULAR_SPEED
-    send_command(command)
-    rospy.sleep(duration)
-	
-	
+    
+    if not INTERRUPTED:
+        send_command(command)
+        rospy.sleep(duration)
+    
+    
 '''TODO'''
 def constantGo():
     command = Twist()
     command.linear.x = LINEAR_SPEED
     send_command(command)
-	
+    
 '''TODO'''
 #def callPolo():
     
 
 '''TODO'''
 def bumperCallback(data):
+    global INTERRUPTED
     if(data.state == 0):
-	return    
+        return
 
-    print data
+    print "INTERRUPTED", data
+    INTERRUPTED = True
     stop()
-    go("backward",6) # 3 is an arbitrary number	
-    turn("left",7) # both parameters are arbitrary
-	
+    
+    
 def randomDirection():
     number = random.randrange(0,2)
     if(number==1):
@@ -113,10 +118,15 @@ def randomDuration():
     return random.randrange(0,7)
 
 def mainLoop():
+    global INTERRUPTED
 #    constantGo()
     while(not GAMEOVER):
         arc(randomDirection(),randomDuration())
-	        
+        if INTERRUPTED :
+            go("backward", 1.0)  
+            turn("left", 2.2) 
+            INTERRUPTED = False
+            
 
 def initialize_commands():
     global constant_command_service
