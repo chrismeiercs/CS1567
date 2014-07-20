@@ -1,10 +1,12 @@
 #!/usr/bin/python
 import rospy
+import math
 from cs1567p4.srv import *
 from std_srvs.srv import * 
 from nav_msgs.msg import *
 from geometry_msgs.msg import *
 from kobuki_msgs.msg import BumperEvent
+from tf.transformations import euler_from_quaternion
 
 #Globals
 constant_command_service = None
@@ -12,41 +14,43 @@ send_command             = rospy.ServiceProxy('constant_command', ConstantComman
 myLocation               = {'x' : 0.0, 'y' : 0.0}
 poloLocations            = [] #array of dictionaries!
 closestPoloLocation      = {'x' : 0.0, 'y' : 0.0} 
-desiredDistance          = 0.0
+desiredXLocation         = 0.0
 desiredAngle             = 0.0
-desiredFace              = ''
 GAMEOVER                 = False
+STATE                    = 0
 
 #Constants
-LINEAR_SPEED             = 0.15 #TODO determine good speed for marco, compared to polo
-ANGULAR_SPEED            = 0.45 #TODO determine good speed for marco, compared to polo
+LINEAR_SPEED      = 0.15 #TODO determine good speed for marco, compared to polo
+ANGULAR_SPEED     = 0.45 #TODO determine good speed for marco, compared to polo
+LINEAR_THRESHOLD  = 0.05
+ANGULAR_THRESHOLD = 0.05
 
 #Functions
 ''' 
 @description:
-    Linear movement forward or backward for a set distance
+    Linear movement forward, stopping when myx == xLocation
 @param: 
-    string direction : 'forward' or 'backward' 
-    float  distance  : 
+    double  xLocation : the x location to stop at 
 '''
-def go(direction, distance):
+def goToX(xLocation):
 
 ''' 
 @description:
     Angular movement left or right for a set distance
 @param: 
     string direction : 'left' or 'right' 
-    float  distance  : 
+    double  distance : 
 '''
 def turn(direction, distance):
 
 '''
 @description:
-    Face the robot either directly north or directly south
-@param:
-    string direction : 'north' or 'south'
+    Face the robot directly north
 '''
-def face(direction):
+def faceUp():
+    global STATE
+    STATE = 'faceUp'
+    # send turn command depending
 
 ''' 
 @description:
@@ -61,9 +65,15 @@ def stop():
     dictionary point1 : the first point
     dictionary point2 : the second point
 @return:
-    float distance
+    double distance in meters
 '''
 def calculateDistance(point1, point2):
+    x1 = point1['x']
+    x2 = point2['x']
+    y1 = point1['y']
+    y2 = point2['y']
+    result = math.sqrt( abs(x1-x2)**2 + abs(y1-y2)**2 )
+    return result
     
 '''
 @description:
@@ -72,9 +82,17 @@ def calculateDistance(point1, point2):
     dictionary point1 : the first point
     dictionary point2 : the second point
 @return:
-    float angle
+    double angle in radians
 '''
 def calculateAngle(point1, point2):
+    x1 = point1['x']
+    x2 = point2['x']
+    y1 = point1['y']
+    y2 = point2['y']
+    xside = abs(x1-x2)
+    yside = abs(y1-y2)
+    result = math.atan(xside/yside)
+    return result
 
 '''
 @description:
@@ -99,33 +117,17 @@ def assignClosestPoloLocation():
         if tempDistance < minDistance:
             minDistance = tempDistance
             closestPoloLocation = location
-
-'''
-@description:
-    Assign the desiredFace global variable
-    based on which way the robot should face
-    determined by the Y coordinates of myLocation
-    and the closestPoloLocation 
-'''
-def assignDesiredFace():
-    global desiredFace
-    my_y   = myLocation['y']
-    polo_y = closestPoloLocation['y']
-    if my_y <= polo_y:
-        desiredFace = 'south'
-    else:
-        desiredFace = 'north'
     
 '''
 @description:
-    Assign the desiredDistance global variable
+    Assign the desiredXLocation global variable
     based on how far the robot should travel
     determined by the x&y of myLocation
     and the closestPoloLocation
 '''
-def assignDesiredDistance():
-    global desiredDistance
-    desiredDistance = calculateDistance(myLocation, closestPoloLocation)
+def setDesiredXLocation():
+    global desiredXLocation
+    desiredXLocation = closestPoloLocation['x']
 
 '''
 @description:
@@ -134,14 +136,16 @@ def assignDesiredDistance():
     determined by the x&y of myLocation
     and the closestPoloLocation
 '''
-def assignDesiredAngle():
+def setDesiredAngle():
     global desiredAngle
     desiredAngle = calculateAngle(myLocation, closestPoloLocation)
 
 '''TODO'''
 def callMarco():
+    #global STATE = 0
     #stop
     #tell everyone to stop
+    #busy wait
     #get array of dictionaries from jump
     #assign poloLocations array
     
@@ -154,25 +158,67 @@ def bumperCallback(data):
     #if gameover: gameover
     #else: execute wall avoidance
 
+'''TODO'''
+def odomCallback(data):
+    global STATE
+    if   STATE == 'waiting' or STATE == 'done':
+        return
+    elif STATE == 'faceUp':
+        # Get current yaw in radians
+        euler = euler_from_quaternion([data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w])
+        yaw = euler[2]
+        # Check if current yaw is up
+        if ( abs(yaw-0.0) <= ANGULAR_THRESHOLD ):
+            stop()
+            STATE = 'turn'
+    elif STATE == 'turn':
+        # Get current yaw in radians
+        euler = euler_from_quaternion([data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w])
+        yaw = euler[2]
+        # Check if in desired state
+        if ( abs(yaw-desiredAngle) <= ANGULAR_THRESHOLD ):
+            stop()
+            STATE = 'goToX'
+    elif STATE == 'goToX':
+        xpos = #Get x pose.pose.position
+        if ( abs(xpos-desiredXLocation) <= LINEAR_THRESHOLD ):
+            stop()
+            STATE = 'done'
+
+    
+'''TODO'''
+def travel():
+    faceUp()
+    # note: turn and go
+    # are handled by the odomCallback
+
+'''TODO'''
 def action():
     callMarco()                 # get list of poloLocations
     assignClosestPoloLocation() # determine closest
-    assignDesiredFace()         # set face north/south
-    face(desiredFace)           # execute face north/south
-    assignDesiredAngle()        # set angle
-    assignDesiredDistance()     # set distance
-    turn(desiredAngle)          # execute turn towards closest 
-    go(desiredDistance)         # execute travel towards closest
+    #Now we have the closest Polo
+    setDesiredAngle()           # set angle
+    setDesiredXLocation()       # set XLocation
+    #Now everything is set
+    travel()                     # faceUp, turn, go          
 
 def initialize_commands():
     global constant_command_service
-    rospy.Subscriber('/odom', Odometry, odom_callback)
+    rospy.Subscriber('/odom', Odometry, odomCallback)
     rospy.init_node('marconode', anonymous=True)
     rospy.wait_for_service('constant_command')
     constant_command_service = rospy.ServiceProxy('constant_command', ConstantCommand)
     
 if __name__ == "__main__":   
+    global STATE
     try: 
         initialize_commands()
+        
+        STATE = 'done' #init
+
+        while(not GAMEOVER):
+            if STATE == 'done':
+                STATE = 'waiting'
+                action()
 
     except rospy.ROSInterruptException: pass

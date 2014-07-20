@@ -11,24 +11,16 @@ from kobuki_msgs.msg import BumperEvent
 bumper_event = None
 constant_command_service = None
 send_command             = rospy.ServiceProxy('constant_command', ConstantCommand)
-'''TODO globals here'''
 GAMEOVER = False
 MARCO = True
+INTERRUPTED = False
+RUNNING = True
 
 #Constants
-'''TODO constants here'''
 LINEAR_SPEED = 0.10
 ANGULAR_SPEED = 0.40
-MARCO_SLEEP = 4.0
 
 #Functions
-''' 
-@description:
-    Linear movement forward or backward for a set duration
-@params: 
-    string  direction : 'forward' or 'backward' 
-    integer duration  : length of time to sleep
-'''
 def go(direction, duration):
     command = Twist()
     if   direction == "forward"  :
@@ -39,13 +31,6 @@ def go(direction, duration):
     rospy.sleep(duration)
     stop()
 
-''' 
-@description:
-    Angular movement left or right for a set duration
-@params: 
-    string  direction : 'left' or 'right' 
-    integer duration  : length of time to sleep
-'''
 def turn(direction, duration):
     command = Twist()
     if   direction == "left"  :
@@ -56,67 +41,52 @@ def turn(direction, duration):
     rospy.sleep(duration)
     stop()
 
-''' 
-@description:
-    Stop all movement
-'''
 def stop():
     command           = Twist()
     command.linear.x  = 0.0
     command.angular.z = 0.0
     send_command(command)
 
-'''TODO'''
-
 def arc(direction, duration):
-
     command = Twist()
     command.linear.x = LINEAR_SPEED
-    send_command(command)
-
+    if not INTERRUPTED:
+        send_command(command)
     if   direction == "left"  :
         command.angular.z = ANGULAR_SPEED
     elif direction == "right" :
         command.angular.z = -ANGULAR_SPEED
-    send_command(command)
-    rospy.sleep(duration)
-	
-	
-'''TODO'''
-def constantGo():
-    command = Twist()
-    command.linear.x = LINEAR_SPEED
-    send_command(command)
-	
-'''TODO'''
-#def callPolo():
-    
+    if not INTERRUPTED:
+        send_command(command)
+        rospy.sleep(duration)
 
-'''TODO'''
 def bumperCallback(data):
+    global INTERRUPTED
     if(data.state == 0):
-	return    
-
-    print data
+        return
+    INTERRUPTED = True
     stop()
-    go("backward",6) # 3 is an arbitrary number	
-    turn("left",7) # both parameters are arbitrary
-	
+    
 def randomDirection():
-    number = random.randrange(0,2)
+    number = random.randrange(0, 2)
     if(number==1):
         return "right"
     else:
         return "left"
 
 def randomDuration():
-    return random.randrange(0,7)
+    return random.randrange(0, 7)
 
 def mainLoop():
-#    constantGo()
+    global INTERRUPTED
     while(not GAMEOVER):
-        arc(randomDirection(),randomDuration())
-	        
+        if RUNNING:
+            arc(randomDirection(),randomDuration())
+            if INTERRUPTED:
+                go("backward", 3.0)  
+                turn("left", 11.0) 
+                INTERRUPTED = False
+            
 
 def initialize_commands():
     global constant_command_service
@@ -125,9 +95,9 @@ def initialize_commands():
     rospy.wait_for_service('constant_command')
     constant_command_service = rospy.ServiceProxy('constant_command', ConstantCommand)
     bumper_event = rospy.Subscriber('/mobile_base/events/bumper',BumperEvent, bumperCallback)
-    mainLoop()
+
 if __name__ == "__main__":   
     try: 
         initialize_commands()
-
+        mainLoop()
     except rospy.ROSInterruptException: pass
