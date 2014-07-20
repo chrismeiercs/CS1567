@@ -8,17 +8,31 @@ from geometry_msgs.msg import *
 from kobuki_msgs.msg import BumperEvent
 
 #Globals
-bumper_event = None
-constant_command_service = None
-send_command             = rospy.ServiceProxy('constant_command', ConstantCommand)
-GAMEOVER = False
-MARCO = True
-INTERRUPTED = False
-RUNNING = True
+bumper_event  = None
+const_cmd_srv = None
+send_command  = rospy.ServiceProxy('constant_command', ConstantCommand)
+GAMEOVER      = False
+MARCO         = True
+INTERRUPTED   = False
+RUNNING       = True
 
 #Constants
-LINEAR_SPEED = 0.10
+LINEAR_SPEED  = 0.10
 ANGULAR_SPEED = 0.40
+
+''' 
+======================== TODO ======================== 
+
+- Communicate with JUMP
+    - jump_ShouldStop  ? : stop
+    - jump_ShouldStart ? : start
+    
+- Sound File (polo!)
+
+- Change node name if multiple poloBots, (could change filename: polo1.py, polo2.py, etc) 
+
+====================================================== 
+'''
 
 #Functions
 def go(direction, duration):
@@ -89,11 +103,11 @@ def mainLoop():
             
 
 def initialize_commands():
-    global constant_command_service
+    global const_cmd_srv
     global bumper_event
-    rospy.init_node('polonode', anonymous=True)
+    rospy.init_node('polonode', anonymous=True) #TODO NODE WILL BE SAME IF MULTIPLE!
     rospy.wait_for_service('constant_command')
-    constant_command_service = rospy.ServiceProxy('constant_command', ConstantCommand)
+    const_cmd_srv = rospy.ServiceProxy('constant_command', ConstantCommand)
     bumper_event = rospy.Subscriber('/mobile_base/events/bumper',BumperEvent, bumperCallback)
 
 if __name__ == "__main__":   
