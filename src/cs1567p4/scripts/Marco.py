@@ -9,25 +9,44 @@ from kobuki_msgs.msg import BumperEvent
 from tf.transformations import euler_from_quaternion
 
 ## Constants
-LINEAR_SPEED      = 0.15 #TODO determine good speed for marco, compared to polo
-ANGULAR_SPEED     = 0.45 #TODO determine good speed for marco, compared to polo
-LINEAR_THRESHOLD  = 0.05
-ANGULAR_THRESHOLD = 0.05
+LINEAR_SPEED      = 0.15 #TODO determine if good speed for marco, compared to polo
+ANGULAR_SPEED     = 0.45 #TODO determine if good speed for marco, compared to polo
+LINEAR_THRESHOLD  = 0.05 #TODO determine if good number
+ANGULAR_THRESHOLD = 0.05 #TODO determine if good number
+BACKUP_DISTANCE   = 5.00 #TODO determine if good number
 
 ## Globals
+bumper_event    = None
 const_cmd_srv   = None
 send_command    = rospy.ServiceProxy('constant_command', ConstantCommand)
-startPosition   = {'x':0.0, 'y':0.0}
+startPosition   = {'x' : 0.0, 'y' : 0.0}
 desiredDistance = 0.0
 desiredAngle    = 0.0
 GAMEOVER        = False
+STATE           = ''
 
 ## DEBUG FUNCTIONS
 def jump_GetAngle():
-    return 2.35 # 3/4's pi
+    return 2.35 # 3/4's pi # Should turn left on positive and right on negative
 def jump_GetDistance():
     return 1.0 # 1 meter
 ## END DEBUG FUNCTIONS
+
+''' 
+======================== TODO ======================== 
+
+- Testing : test BumperEvent and states
+
+- Communicate with JUMP
+    - jump_StopAll : stop all poloBots
+    - jump_GetAngle : return the angle in radians (-pi < a < pi) to the closest poloBot, assuming marco is facing north
+    - jump_GetDistance : return the distance in meters to the closest poloBot
+    - jump_StartAll : start all poloBots
+
+- Sound File (marco!)
+
+====================================================== 
+'''
 
 ##
 ##
@@ -50,8 +69,6 @@ def jump_GetDistance():
     -> o_faceNorth              : odometryCallback
 
 =====================  REPEAT  =========================
-
-Note: upon resolution of a BumperEvent, STATE should= needToFaceNorth # TODO
 '''
 
 ##
@@ -79,24 +96,27 @@ def callMarco():
     global desiredAngle
     global desiredDistance
     global STATE
+    # Play sound file
+    # TODO sound file
     # Everyone stop
     stop()
-    #jump_StopAll() # TODO JUMP
-    #jump_CallMarco() # TODO JUMP
-    # WAIT while something # TODO JUMP
+    # jump_StopAll() # TODO JUMP
     # Set globals
     desiredAngle    = jump_GetAngle() # TODO JUMP
     desiredDistance = jump_GetDistance() # TODO JUMP
-    #jump_GoAll() # TODO JUMP
+    # jump_StartAll() # TODO JUMP
     STATE = 'needToTurnDesired'
 
 '''
-=== Turn left until odometryCallback stops it
+=== Turn left or right (depending) until odometryCallback stops it
 '''
 def turnDesired():
     global STATE
     command = Twist()
-    command.angular.z = ANGULAR_SPEED
+    if desiredAngle > 0.0:  # if positive, turn left     #TODO is this the correct way to turn?
+        command.angular.z = ANGULAR_SPEED
+    else:                   # else       , turn right    #TODO is this the correct way to turn?
+        command.angular.z = -ANGULAR_SPEED
     send_command(command)
     STATE = 'o_turnDesired'
 
@@ -124,6 +144,9 @@ def faceNorth():
 === Odometry Callback state machine, determines when to stop the robot and sets next state
 '''
 def odometryCallback(data):
+    if STATE == 'interrupted':
+        return
+
     global STATE
 
     if   STATE == 'o_faceNorth':
@@ -204,14 +227,39 @@ def stop():
     send_command(command)
 
 ''' 
+=== Backup after a BumperEvent
+'''
+def bumperBackup():
+    command = Twist()
+    command.linear.x = -LINEAR_SPEED
+    send_command(command)
+    rospy.sleep(BACKUP_DISTANCE)
+    stop()
+
+''' 
+=== Bumper Callback for a BumperEvent
+'''
+def bumperCallback(data): #TODO will this work?
+    if(data.state == 0): 
+        return #return if state is released
+    
+    global STATE
+    STATE = 'interrupted' #dummy state
+    stop()
+    bumperBackup()
+    STATE = 'needToFaceNorth'
+
+''' 
 === Initialize 
 '''
 def initialize_commands():
-    global const_cmd_srv  
+    global const_cmd_srv 
+    global bumper_event 
     rospy.Subscriber('/odom', Odometry, odometryCallback)
     rospy.init_node('marconode', anonymous=True)
     rospy.wait_for_service('constant_command')
     const_cmd_srv = rospy.ServiceProxy('constant_command', ConstantCommand)
+    bumper_event = rospy.Subscriber('/mobile_base/events/bumper',BumperEvent, bumperCallback)
 
 ##
 ##
