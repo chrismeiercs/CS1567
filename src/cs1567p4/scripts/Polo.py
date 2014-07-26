@@ -101,7 +101,11 @@ def mainLoop():
                 turn("left", 11.0) 
                 INTERRUPTED = False
             
-
+'''def jumpCallBack(data):
+    global RUNNING
+    if data.x == -100:
+        RUNNING = False
+	stop()'''
 def initialize_commands():
     global const_cmd_srv
     global bumper_event
