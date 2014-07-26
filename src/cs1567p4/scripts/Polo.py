@@ -106,6 +106,7 @@ def mainLoop():
     if data.x == -100:
         RUNNING = False
 	stop()'''
+    
 def initialize_commands():
     global const_cmd_srv
     global bumper_event
