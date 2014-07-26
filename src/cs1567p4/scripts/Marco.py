@@ -42,6 +42,7 @@ def jump_GetDistance():
     - jump_GetAngle : return the angle in radians (-pi < a < pi) to the closest poloBot, assuming marco is facing north
     - jump_GetDistance : return the distance in meters to the closest poloBot
     - jump_StartAll : start all poloBots
+    - jump_CheckWin : return true or false
 
 - Sound File (marco!)
 
