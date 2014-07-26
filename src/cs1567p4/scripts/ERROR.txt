@@ -1,0 +1,6 @@
+ERROR: Rosdep cannot find all required resources to answer your query
+Missing resource sound_play
+ROS path [0]=/opt/ros/hydro/share/ros
+ROS path [1]=/opt/ros/hydro/share
+ROS path [2]=/opt/ros/hydro/stacks
+
